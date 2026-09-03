@@ -1,0 +1,5 @@
+const token=sessionStorage.getItem("starAdminToken");if(!token)location.href="/";
+async function load(){const r=await fetch("/api/admin/users",{headers:{Authorization:"Bearer "+token}});if(!r.ok)return location.href="/";const d=await r.json();document.querySelector("#rows").innerHTML=d.users.map(u=>`<tr><td>${esc(u.roblox_username)}</td><td>${esc(u.roblox_user_id||"-")}</td><td>${esc(u.ip)}</td><td title="${esc(u.device_hash)}">${esc(u.device_hash.slice(0,16))}…</td><td>${esc(u.key)}</td><td>${u.banned?'<span class="ban">已封禁</span>':'<span class="ok">正常</span>'}</td><td><button onclick="ban(${u.id},${!u.banned})">${u.banned?'解封':'封禁'}</button></td></tr>`).join("")}
+function esc(x){return String(x).replace(/[&<>"']/g,m=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[m]))}
+async function ban(id,b){await fetch("/api/admin/"+(b?"ban":"unban"),{method:"POST",headers:{"Content-Type":"application/json",Authorization:"Bearer "+token},body:JSON.stringify({id})});load()}
+document.querySelector("#refresh").onclick=load;load();
